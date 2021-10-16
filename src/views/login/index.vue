@@ -69,7 +69,7 @@ export default {
     return {
       user: {
         mobile: '17691005475',
-        code: ''
+        code: '246810'
       },
       formRules: {
         mobile: [
@@ -99,8 +99,11 @@ export default {
         duration: 0
       })
       try {
-        await login(this.user)
+        const { data } = await login(this.user)
+        console.log(data)
         this.$toast.success('登录成功')
+
+        this.$store.commit('setUser', data.data)
       } catch (err) {
         console.log(err)
         this.$toast.fail('登录失败，手机号或验证码错误')
