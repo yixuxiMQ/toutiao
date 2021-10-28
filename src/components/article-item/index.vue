@@ -1,6 +1,13 @@
 <template>
-  <van-cell class="article-item">
-      <!-- <div slot="title" class="title van-multi-ellipsis--l3">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam unde vitae recusandae rem enim repudiandae eveniet ullam saepe, possimus, sed quis odit deserunt. Aliquid ipsum voluptatibus id, temporibus quia possimus.</div> -->
+  <van-cell
+    class="article-item"
+    :to="{
+      name: 'article',
+      params: {
+        articleId: article.art_id
+      }
+    }"
+  >
       <div
         class="title van-multi-ellipsis--l3"
         slot="title"
