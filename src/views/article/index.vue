@@ -7,41 +7,49 @@
         @click-left="$router.back()"
       />
 
-      <h1 class="title">{{ article.title }}</h1>
-
-      <van-cell
-        center
-        class="user-info"
-      >
-          <div
-            slot="title"
-            class="name"
-          >{{ article.aut_name }}</div>
-          <van-image
-            class="avatar"
-            slot="icon"
-            round
-            fit="cover"
-            :src="article.aut_photo"
-          />
-          <div
-            slot="label"
-            class="pubdate"
-          >{{ article.pubdate | relativeTime }}</div>
-          <van-button
-            :loading="isFollowLoading"
-            class="followbtn"
-            :type="article.is_followed ? 'default' : 'info'"
-            round
-            size="mini"
-            :icon="article.is_followed ? '' : 'plus'"
-            @click="onFollow"
-          >{{ article.is_followed ? '已关注' : '关注' }}</van-button>
-      </van-cell>
-      <div
-        class="markdown-body"
-        v-html="article.content"
-        ref="article-content">
+      <div class="article-wrap">
+        <h1 class="title">{{ article.title }}</h1>
+        <van-cell
+            center
+            class="user-info"
+        >
+            <div
+                slot="title"
+                class="name"
+            >{{ article.aut_name }}</div>
+            <van-image
+                class="avatar"
+                slot="icon"
+                round
+                fit="cover"
+                :src="article.aut_photo"
+            />
+            <div
+                slot="label"
+                class="pubdate"
+            >{{ article.pubdate | relativeTime }}</div>
+            <van-button
+                :loading="isFollowLoading"
+                class="followbtn"
+                :type="article.is_followed ? 'default' : 'info'"
+                round
+                size="mini"
+                :icon="article.is_followed ? '' : 'plus'"
+                @click="onFollow"
+            >{{ article.is_followed ? '已关注' : '关注' }}</van-button>
+        </van-cell>
+        <div
+            class="markdown-body"
+            v-html="article.content"
+            ref="article-content">
+        </div>
+        <comment-list
+            :source="articleId"
+            :list="commentList"
+            type="a"
+            @update-total-count="totalCommentCount = $event"
+            @reply-click="onReplyClick"
+        ></comment-list>
       </div>
 
       <div class="article-bottom">
@@ -50,10 +58,11 @@
             size="small"
             round
             class="comment-bnt"
+            @click="onShowPopup"
           >写评论</van-button>
           <van-icon
             name="comment-o"
-            badge="123"
+            :badge="totalCommentCount"
             color="#777"
           ></van-icon>
           <van-icon
@@ -71,10 +80,26 @@
             color="#777"
           ></van-icon>
       </div>
+
+      <post-comment
+        ref="onShowPopup"
+        :target="articleId"
+        @post-success="postComment"
+        @updateComment="totalCommentCount++"
+      ></post-comment>
+
+      <reply-comment
+        ref="replyComment"
+        :comment="replyCommentObj"
+        :articleId="articleId"
+      ></reply-comment>
   </div>
 </template>
 
 <script>
+import CommentList from './components/CommentList'
+import PostComment from './components/PostComment'
+import ReplyComment from './components/ReplyComment'
 import './github-markdown-light.css'
 import {
   getArticlesContent,
@@ -87,6 +112,11 @@ import { addFollow, deleteFollow } from '@/api/user'
 import { ImagePreview } from 'vant'
 export default {
   name: 'ArticleIndex',
+  components: {
+    CommentList,
+    PostComment,
+    ReplyComment
+  },
   // 组件中获取动态路由参数：
   // 方式一：this.$route.params.xxx
   // 方式二：props 传参
@@ -99,7 +129,10 @@ export default {
   data () {
     return {
       article: {},
-      isFollowLoading: false
+      isFollowLoading: false,
+      commentList: [],
+      totalCommentCount: 0,
+      replyCommentObj: {}
     }
   },
   created () {
@@ -169,25 +202,33 @@ export default {
         this.article.attitude = 1
       }
       this.$toast.success(`${this.article.attitude === 1 ? '点赞成功' : '取消点赞'}`)
+    },
+
+    onShowPopup () {
+      this.$refs.onShowPopup.onShowPopup()
+    //   console.log(this.$refs)
+    },
+
+    postComment (comment) {
+      this.commentList.unshift(comment)
+    },
+
+    onReplyClick (comment) {
+      console.log('onReplyClick', comment)
+      this.replyCommentObj = comment
+      this.$refs.replyComment.onReplyShow()
     }
   }
 }
 </script>
 
 <style lang="less" scoped>
-.app-nav-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-}
-
 .title {
     font-size: 20px;
     color: #3a3a3a;
     padding: 14px;
     background-color: #fff;
-    margin: 46px 0 0 0;
+    margin: 0;
 }
 
 .user-info {
@@ -217,9 +258,17 @@ ul {
     list-style: unset;
 }
 
+.article-wrap {
+    position: fixed;
+    top: 46px;
+    left: 0;
+    right: 0;
+    bottom: 44px;
+    overflow-y: auto;
+}
+
 .markdown-body {
     padding: 14px;
-    margin-bottom: 44px;
 }
 
 .article-bottom {
