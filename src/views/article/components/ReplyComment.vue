@@ -42,9 +42,9 @@
 </template>
 
 <script>
-import CommentItem from './CommentItem.vue'
-import CommentList from './CommentList.vue'
-import PostComment from './PostComment.vue'
+import CommentItem from './CommentItem'
+import CommentList from './CommentList'
+import PostComment from './PostComment'
 
 export default {
   name: 'ReplyComment',
