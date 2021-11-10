@@ -104,7 +104,7 @@ export default {
         this.$toast.success('登录成功')
 
         this.$store.commit('setUser', data.data)
-
+        this.$store.commit('removeCachePage', 'LayoutIndex')
         this.$router.back()
       } catch (err) {
         console.log(err)

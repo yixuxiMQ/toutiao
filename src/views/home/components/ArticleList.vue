@@ -1,5 +1,8 @@
 <template>
-  <div class="article-list">
+  <div
+    class="article-list"
+    ref="article-list"
+  >
     <van-pull-refresh
         v-model="isRefreshLoading"
         @refresh="onRefresh"
@@ -12,12 +15,12 @@
             finished-text="没有更多了"
             @load="onLoad"
         >
-        <!-- <van-cell v-for="(article, index) in articles" :key="index" :title="article.title" /> -->
-        <article-item
-            v-for="(article, index) in articles"
-            :key="index"
-            :article="article"
-        ></article-item>
+          <!-- <van-cell v-for="(article, index) in articles" :key="index" :title="article.title" /> -->
+          <article-item
+              v-for="(article, index) in articles"
+              :key="index"
+              :article="article"
+          ></article-item>
         </van-list>
     </van-pull-refresh>
   </div>
@@ -26,6 +29,7 @@
 <script>
 import { getArticles } from '@/api/article.js'
 import ArticleItem from '@/components/article-item'
+import { debounce } from 'lodash'
 
 export default {
   name: 'ArticleList',
@@ -45,8 +49,18 @@ export default {
       finished: false,
       timestamp: null,
       isRefreshLoading: false,
-      refreshSuccessText: ''
+      refreshSuccessText: '',
+      scrollTop: 0
     }
+  },
+  mounted () {
+    const articleList = this.$refs['article-list']
+    articleList.onscroll = debounce(() => {
+      this.scrollTop = articleList.scrollTop
+    }, 50)
+  },
+  activated () {
+    this.$refs['article-list'].scrollTop = this.scrollTop
   },
   methods: {
     async onLoad () {

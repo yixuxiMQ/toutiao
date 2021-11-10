@@ -8,7 +8,8 @@ const USER_KEY = 'toutiao-user'
 
 export default new Vuex.Store({
   state: {
-    user: getItem(USER_KEY)
+    user: getItem(USER_KEY),
+    cachePages: ['LayoutIndex']
   },
   mutations: {
     setUser (state, data) {
@@ -16,6 +17,19 @@ export default new Vuex.Store({
 
       // 防止页面刷新丢失数据，为了持久化数据
       setItem(USER_KEY, state.user)
+    },
+
+    addCachePage (state, pageName) {
+      if (!state.cachePages.includes(pageName)) {
+        state.cachePages.push(pageName)
+      }
+    },
+
+    removeCachePage (state, pageName) {
+      const index = state.cachePages.indexOf(pageName)
+      if (index !== -1) {
+        state.cachePages.splice(index, 1)
+      }
     }
   },
   actions: {
