@@ -105,7 +105,8 @@ export default {
 
         this.$store.commit('setUser', data.data)
         this.$store.commit('removeCachePage', 'LayoutIndex')
-        this.$router.back()
+        // this.$router.back()
+        this.$router.push(this.$router.query.redirect || '/')
       } catch (err) {
         console.log(err)
         this.$toast.fail('登录失败，手机号或验证码错误')
